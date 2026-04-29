@@ -6,7 +6,6 @@ PostgreSQL database.
 
 ## Our Team
 Marsha Aulia Rizky · Fatwa · Putri Jingga · Syakira Latifah  
-Advanced Database — President University
 
 ## Features
 - **Overview** — KPIs for total customers, rentals, and revenue
