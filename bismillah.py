@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 # ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Customer Analytics Dashboard",
-    page_icon="🎬",
+    page_icon="📼",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -264,7 +264,7 @@ def fig_base(fig, h=350, legend=False):
 # ──────────────────────────────────────────────────────────────
 # DB CONFIG — ganti sesuai punyamu
 # ──────────────────────────────────────────────────────────────
-DB_URL = "postgresql+psycopg2://postgres:marshacaca123@localhost:5432/rentalDB"
+DB_URL = "postgresql+psycopg2://postgres:jinggacantik@localhost:5432/dvdrental"
 
 @st.cache_resource
 def get_engine():
@@ -508,7 +508,7 @@ st.markdown("""
     </div>
     <div class="hero-text">
         <h1>Customer Analytics Dashboard</h1>
-        <p>Revenue · Behavior · Loyalty · Segmentation — powered by dvdrental data</p>
+        <p>Revenue · Behavior · Loyalty · Segmentation — dvdrental</p>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -527,8 +527,8 @@ kpis = [
     ("Total Customers",      f"{int(kpi['total_customers']):,}",              "active customers"),
     ("Total Revenue",        f"${float(kpi['total_revenue']):,.2f}",          "all transactions"),
     ("Total Rentals",        f"{int(kpi['total_rentals']):,}",                "all time"),
-    ("Avg Transaction",      f"${float(kpi['avg_transaction']):,.2f}",        "per payment"),
-    ("Avg Spend/Customer",   f"${float(kpi['avg_spend_per_customer']):,.2f}", "lifetime value"),
+    ("Avg Revenue Per Rental Transaction",      f"${float(kpi['avg_transaction']):,.2f}",        "per payment"),
+    ("Avg Spend Per Customer",   f"${float(kpi['avg_spend_per_customer']):,.2f}", "lifetime value"),
 ]
 
 cols = st.columns(5)
@@ -649,20 +649,6 @@ with tab1:
         st.plotly_chart(fig_geo, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Store Preference ──
-    st.markdown('<div class="sec-label">Store Preference</div>', unsafe_allow_html=True)
-    store_cols = st.columns(len(df_store))
-    for i, (_, row) in enumerate(df_store.iterrows()):
-        with store_cols[i]:
-            st.markdown(f"""
-            <div class="kpi">
-                <div class="kpi-label">{row['store_label']}</div>
-                <div class="kpi-val">{int(row['unique_customers']):,}</div>
-                <div class="kpi-sub"><span class="kpi-dot"></span>${float(row['revenue']):,.0f} revenue · {int(row['rental_count']):,} rentals</div>
-            </div>
-            """, unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-
 # ════════════════════════════════════════════════════════════════
 # TAB 2 — BEHAVIOR
 # ════════════════════════════════════════════════════════════════
@@ -733,8 +719,8 @@ with tab2:
 
     with col_c:
         st.markdown('<div class="chart-wrap">', unsafe_allow_html=True)
-        st.markdown('<div class="chart-title">How Often Do Customers Rent?</div>', unsafe_allow_html=True)
-        st.markdown('<div class="chart-sub">Distribution of rental frequency across all customers</div>', unsafe_allow_html=True)
+        st.markdown('<div class="chart-title">Rental Frequency Distribution</div>', unsafe_allow_html=True)
+        st.markdown('<div class="chart-sub">Number of customers grouped by how many times they have rented</div>', unsafe_allow_html=True)
 
         fig_freq = go.Figure(go.Histogram(
             x=df_f["rental_count"], nbinsx=20,
@@ -877,21 +863,20 @@ with tab3:
         st.plotly_chart(fig_seg_bar, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Segment KPI badges ──
-    kc1, kc2, kc3, kc4 = st.columns(4)
-    for col, seg, icon in zip([kc1,kc2,kc3,kc4],
-                               ["Champions","Loyal","At Risk","Lost"],
-                               ["🏆","💙","⚠️","💤"]):
-        cnt = seg_summary[seg_summary["segment"]==seg]["count"].values
+# ── Segment KPI badges ──
+    kc1, kc2, kc3 = st.columns(3)
+    for col, seg, icon in zip([kc1, kc2, kc3],
+                               ["Champions", "Loyal", "Lost"],
+                               ["🏆", "💙", "🚀"]):
+        cnt = seg_summary[seg_summary["segment"] == seg]["count"].values
         with col:
             st.markdown(f"""
             <div class="kpi">
-                <div class="kpi-label">{icon} {seg}</div>
+                <div class="kpi-label">{icon} {seg.upper()}</div>
                 <div class="kpi-val">{cnt[0] if len(cnt) else 0}</div>
                 <div class="kpi-sub"><span class="kpi-dot"></span>customers</div>
             </div>
             """, unsafe_allow_html=True)
-
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Spending Segment Donut (qcut) + Revenue Bar ──
